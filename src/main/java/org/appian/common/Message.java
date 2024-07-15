@@ -1,4 +1,4 @@
-package com.appian.flink.producer;
+package org.appian.common;
 
 import lombok.Data;
 

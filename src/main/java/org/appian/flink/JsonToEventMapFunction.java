@@ -1,6 +1,8 @@
 package org.appian.flink;
 
+
 import org.apache.flink.api.common.functions.RichMapFunction;
+import org.appian.common.Message;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 

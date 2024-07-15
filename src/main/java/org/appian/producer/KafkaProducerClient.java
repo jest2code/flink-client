@@ -1,4 +1,4 @@
-package com.appian.flink.producer;
+package org.appian.producer;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 
@@ -8,6 +8,7 @@ import org.apache.kafka.clients.producer.ProducerConfig;
 import org.apache.kafka.clients.producer.ProducerRecord;
 import org.apache.kafka.clients.producer.RecordMetadata;
 import org.apache.kafka.common.serialization.StringSerializer;
+import org.appian.common.Message;
 
 import java.util.Properties;
 import java.util.Random;
@@ -17,7 +18,7 @@ import java.util.concurrent.Future;
 public class KafkaProducerClient {
 
     private static final String TOPIC = "flinktopic";
-    private static final String BOOTSTRAP_SERVERS = "localhost:9094";
+    private static final String BOOTSTRAP_SERVERS = "localhost:9092";
 
     public static void main(String[] args) {
         Properties props = new Properties();

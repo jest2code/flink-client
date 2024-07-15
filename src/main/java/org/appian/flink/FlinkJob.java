@@ -11,6 +11,7 @@ import org.apache.flink.streaming.api.datastream.DataStream;
 import org.apache.flink.streaming.api.environment.StreamExecutionEnvironment;
 import org.apache.flink.streaming.api.functions.KeyedProcessFunction;
 import org.apache.flink.util.Collector;
+import org.appian.common.Message;
 
 public class FlinkJob {
 
@@ -18,7 +19,7 @@ public class FlinkJob {
     StreamExecutionEnvironment env = StreamExecutionEnvironment.getExecutionEnvironment();
 
     KafkaSource<String> kafkaSource = KafkaSource.<String>builder()
-        .setBootstrapServers("localhost:9094")
+        .setBootstrapServers("localhost:9092")
         .setTopics("flinktopic")
         .setGroupId("flink-group")
         .setStartingOffsets(OffsetsInitializer.latest())
