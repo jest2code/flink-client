@@ -1,9 +1,12 @@
 package org.appian.flink;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+
 import org.apache.flink.api.common.serialization.DeserializationSchema;
 import org.apache.flink.api.common.typeinfo.TypeInformation;
 import org.apache.flink.api.common.typeinfo.Types;
+import org.appian.common.Message;
+
 import java.io.IOException;
 
 public class MessageDeserializationSchema implements DeserializationSchema<Message> {
