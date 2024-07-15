@@ -1,7 +1,5 @@
 package org.appian.flink;
 
-import java.time.Instant;
-
 import org.apache.flink.api.common.eventtime.WatermarkStrategy;
 import org.apache.flink.api.common.functions.OpenContext;
 import org.apache.flink.api.common.serialization.SimpleStringSchema;
@@ -13,10 +11,12 @@ import org.apache.flink.streaming.api.functions.KeyedProcessFunction;
 import org.apache.flink.util.Collector;
 import org.appian.common.Message;
 
-public class FlinkJob {
+import java.time.Instant;
+
+public class FlinkJobFilter {
 
   public void start() throws Exception {
-    System.out.println("Executing Flink job using KeyBy Operator...");
+    System.out.println("Executing Flink job using Filter Operator...");
     StreamExecutionEnvironment env = StreamExecutionEnvironment.getExecutionEnvironment();
 
     KafkaSource<String> kafkaSource = KafkaSource.<String>builder()
@@ -27,39 +27,40 @@ public class FlinkJob {
         .setValueOnlyDeserializer(new SimpleStringSchema())
         .build();
 
-    DataStream<String> kafkaStream = env.fromSource(kafkaSource, WatermarkStrategy.noWatermarks(),
-        "Kafka Source");
+    DataStream<String> kafkaStream = env.fromSource(kafkaSource, WatermarkStrategy.noWatermarks(), "Kafka Source");
 
-    kafkaStream
-        .map(new JsonToEventMapFunction())
-        .keyBy(m -> m.getType()+"-"+m.getCaseId())
-        //.window(TumblingProcessingTimeWindows.of(Duration.of(5, ChronoUnit.SECONDS)))
+    DataStream<Message> messageStream = kafkaStream.map(new JsonToEventMapFunction());
+
+    DataStream<Message> contractStream = messageStream
+        .filter(message -> message.getType().equals("Contract"));
+
+    DataStream<Message> eMessageStream = messageStream
+        .filter(message -> message.getType().equals("eMessage"));
+
+    DataStream<Message> worksheetStream = messageStream
+        .filter(message -> message.getType().equals("Worksheet"));
+
+    contractStream
+        .keyBy(m -> m.getType() + "-" + m.getCaseId())
         .process(new MessageRouterProcessFunction())
         .setParallelism(3);
 
+    eMessageStream
+        .keyBy(m -> m.getType() + "-" + m.getCaseId())
+        .process(new MessageRouterProcessFunction())
+        .setParallelism(3);
 
-    env.execute("Executing stream processor");
+    worksheetStream
+        .keyBy(m -> m.getType() + "-" + m.getCaseId())
+        .process(new MessageRouterProcessFunction())
+        .setParallelism(3);
+
+    env.execute("Executing stream processor with filter");
   }
 
   private static class MessageRouterProcessFunction extends KeyedProcessFunction<String, Message, Void> {
-
     @Override
-    public void processElement(
-        Message message, KeyedProcessFunction<String, Message, Void>.Context context, Collector<Void> collector)
-        throws Exception {
-//      switch (message.getType()) {
-//        case "Contract":
-//          System.out.println("Processing Contract");
-//          break;
-//        case "eMessage":
-//          System.out.println("Processing eMessage");
-//          break;
-//        case "Worksheet":
-//          System.out.println("Processing Worksheet");
-//          break;
-//        default:
-//          throw new IllegalArgumentException("Unknown event type: " + message.getType());
-//      }
+    public void processElement(Message message, KeyedProcessFunction<String, Message, Void>.Context context, Collector<Void> collector) throws Exception {
       System.out.println(
           Instant.now() + ":: Thread ID: " + Thread.currentThread().getId() + ", Processing Started Id: " +
               message.getId() + ", Type: " + message.getType() + ", CaseId: " + message.getCaseId());
@@ -76,5 +77,3 @@ public class FlinkJob {
     }
   }
 }
-
-
