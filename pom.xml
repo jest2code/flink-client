@@ -17,22 +17,12 @@
   </properties>
 
   <dependencies>
-    <dependency>
-      <groupId>org.apache.kafka</groupId>
-      <artifactId>kafka-clients</artifactId>
-      <version>3.0.0</version>
-    </dependency>
-    <dependency>
-      <groupId>com.fasterxml.jackson.core</groupId>
-      <artifactId>jackson-databind</artifactId>
-      <version>2.12.3</version>
-    </dependency>
-    <dependency>
-      <groupId>com.github.knaufk</groupId>
-      <artifactId>flink-faker</artifactId>
-      <version>0.5.3</version>
-      <scope>provided</scope>
-    </dependency>
+<!--    <dependency>-->
+<!--      <groupId>com.github.knaufk</groupId>-->
+<!--      <artifactId>flink-faker</artifactId>-->
+<!--      <version>0.5.3</version>-->
+<!--      <scope>provided</scope>-->
+<!--    </dependency>-->
     <dependency>
       <groupId>org.apache.flink</groupId>
       <artifactId>flink-java</artifactId>

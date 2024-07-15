@@ -26,28 +26,25 @@ public class KafkaProducerClient {
         props.put(ProducerConfig.KEY_SERIALIZER_CLASS_CONFIG, StringSerializer.class.getName());
         props.put(ProducerConfig.VALUE_SERIALIZER_CLASS_CONFIG, StringSerializer.class.getName());
 
-        KafkaProducer<String, String> producer = new KafkaProducer<>(props);
+      try (KafkaProducer<String,String> producer = new KafkaProducer<>(props)) {
         ObjectMapper objectMapper = new ObjectMapper();
         Random random = new Random();
+        for (int i = 0; i < 100; i++) {
+          Message message = createRandomMessage(i, random);
+          String messageJson = objectMapper.writeValueAsString(message);
+          ProducerRecord<String,String> record = new ProducerRecord<>(TOPIC, messageJson);
 
-        try {
-            for (int i = 0; i < 100; i++) {
-                Message message = createRandomMessage(i, random);
-                String messageJson = objectMapper.writeValueAsString(message);
-                ProducerRecord<String, String> record = new ProducerRecord<>(TOPIC, messageJson);
+          // Thread.sleep(50);
+          Future<RecordMetadata> future = producer.send(record);
+          RecordMetadata metadata = future.get();
 
-               // Thread.sleep(50);
-                Future<RecordMetadata> future = producer.send(record);
-                RecordMetadata metadata = future.get();
-
-                System.out.printf("Sent message: %s, Offset: %d, Partition: %d%n",
-                        messageJson, metadata.offset(), metadata.partition());
-            }
-        } catch (InterruptedException | ExecutionException | com.fasterxml.jackson.core.JsonProcessingException e) {
-            e.printStackTrace();
-        } finally {
-            producer.close();
+          System.out.printf("Sent message: %s, Offset: %d, Partition: %d%n", messageJson, metadata.offset(),
+              metadata.partition());
         }
+      } catch (InterruptedException | ExecutionException |
+               com.fasterxml.jackson.core.JsonProcessingException e) {
+        e.printStackTrace();
+      }
     }
 
     private static Message createRandomMessage(int i, Random random) {
