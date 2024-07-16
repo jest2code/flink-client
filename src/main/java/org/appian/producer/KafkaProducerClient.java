@@ -29,7 +29,7 @@ public class KafkaProducerClient {
       try (KafkaProducer<String,String> producer = new KafkaProducer<>(props)) {
         ObjectMapper objectMapper = new ObjectMapper();
         Random random = new Random();
-        for (int i = 0; i < 100; i++) {
+        for (int i = 0; i < 10000; i++) {
           Message message = createRandomMessage(i, random);
           String messageJson = objectMapper.writeValueAsString(message);
           ProducerRecord<String,String> record = new ProducerRecord<>(TOPIC, messageJson);

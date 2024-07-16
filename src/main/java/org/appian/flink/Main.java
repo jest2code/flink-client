@@ -2,7 +2,10 @@ package org.appian.flink;
 
 public class Main {
   public static void main(String[] args) {
-    String processMethod = (args.length == 0) ? "keyBy" : args[0];
+    if (args.length == 0) {
+      args = new String[] {"keyBy"};
+    }
+    String processMethod = args[0];
     System.out.println("Processing the Job : " + args[0]);
     try {
       if ("filter".equalsIgnoreCase(processMethod)) {
